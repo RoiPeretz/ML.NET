@@ -1,202 +1,141 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System.Drawing;
+using System.Drawing.Drawing2D;
 using Microsoft.ML;
-using Microsoft.ML.Data;
-using Microsoft.ML.Transforms.Image;
+using ObjectDetectionExample;
+using ObjectDetectionExample.DataStructures;
+using ObjectDetectionExample.YoloParser;
+using static System.Drawing.Image;
 
-namespace ObjectDetectionExample
+var assetsRelativePath = @"../../../../../../Assets";
+var assetsPath = GetAbsolutePath(assetsRelativePath);
+
+var modelsRelativePath = @"../../../../../../Models";
+var modelsPath = GetAbsolutePath(modelsRelativePath);
+var modelFilePath = Path.Combine(modelsPath, "yolov4", "yolov4.onnx");
+var cocoNamesFile = Path.Combine(modelsPath, "yolov4", "coco.names");
+
+var imagesFolder = Path.Combine(assetsPath, "images");
+var outputFolder = Path.Combine(assetsPath, "output");
+
+// Initialize MLContext
+var mlContext = new MLContext();
+
+try
 {
-    public class ImageData
+    // Load Data
+    var images = ImageNetData.ReadFromFile(imagesFolder);
+    var imageDataView = mlContext.Data.LoadFromEnumerable(images);
+
+    // Create instance of model scorer
+    var modelScorer = new OnnxModelScorer(imagesFolder, modelFilePath, mlContext);
+
+    // Use model to score data
+    var probabilities = modelScorer.Score(imageDataView)
+        .Select(output => output.Boxes)
+        .ToList();
+
+    // Post-process model output
+    var parser = new YoloOutputParser(cocoNamesFile);
+
+    var boundingBoxes =
+        probabilities
+        .Select(probability => parser.ParseOutputs(probability))
+        .Select(boxes => parser.FilterBoundingBoxes(boxes, 5, .5F));
+
+    // Draw bounding boxes for detected objects in each of the images
+    for (var i = 0; i < images.Count(); i++)
     {
-        public string ImagePath { get; set; } = string.Empty;
+        var imageFileName = images.ElementAt(i).Label;
+        var detectedObjects = boundingBoxes.ElementAt(i);
+
+        DrawBoundingBox(imagesFolder, outputFolder, imageFileName, detectedObjects);
+
+        LogDetectedObjects(imageFileName, detectedObjects);
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.ToString());
+}
+
+Console.WriteLine("========= End of Process..Hit any Key ========");
+
+string GetAbsolutePath(string relativePath)
+{
+    var dataRoot = new FileInfo(typeof(Program).Assembly.Location);
+    var assemblyFolderPath = dataRoot.Directory.FullName;
+
+    var fullPath = Path.Combine(assemblyFolderPath, relativePath);
+
+    return fullPath;
+}
+
+void DrawBoundingBox(string? inputImageLocation, string outputImageLocation, string imageName, IList<YoloBoundingBox> filteredBoundingBoxes)
+{
+    if (inputImageLocation == null) return;
+    var image = FromFile(Path.Combine(inputImageLocation, imageName));
+
+    var originalImageHeight = image.Height;
+    var originalImageWidth = image.Width;
+
+    foreach (var box in filteredBoundingBoxes)
+    {
+        // Get Bounding Box Dimensions
+        var x = (uint)Math.Max(box.Dimensions.X, 0);
+        var y = (uint)Math.Max(box.Dimensions.Y, 0);
+        var width = (uint)Math.Min(originalImageWidth - x, box.Dimensions.Width);
+        var height = (uint)Math.Min(originalImageHeight - y, box.Dimensions.Height);
+
+        // Resize To Image
+        x = (uint)originalImageWidth * x / OnnxModelScorer.ImageNetSettings.ImageWidth;
+        y = (uint)originalImageHeight * y / OnnxModelScorer.ImageNetSettings.ImageHeight;
+        width = (uint)originalImageWidth * width / OnnxModelScorer.ImageNetSettings.ImageWidth;
+        height = (uint)originalImageHeight * height / OnnxModelScorer.ImageNetSettings.ImageHeight;
+
+        // Bounding Box Text
+        var text = $"{box.Label} ({(box.Confidence * 100).ToString("0")}%)";
+
+        using var thumbnailGraphic = Graphics.FromImage(image);
+
+        thumbnailGraphic.CompositingQuality = CompositingQuality.HighQuality;
+        thumbnailGraphic.SmoothingMode = SmoothingMode.HighQuality;
+        thumbnailGraphic.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+        // Define Text Options
+        var drawFont = new Font("Arial", 12, FontStyle.Bold);
+        var size = thumbnailGraphic.MeasureString(text, drawFont);
+        var fontBrush = new SolidBrush(Color.Black);
+        var atPoint = new Point((int)x, (int)y - (int)size.Height - 1);
+
+        // Define BoundingBox options
+        var pen = new Pen(box.BoxColor, 3.2f);
+        var colorBrush = new SolidBrush(box.BoxColor);
+
+        // Draw text on image 
+        thumbnailGraphic.FillRectangle(colorBrush, (int)x, (int)(y - size.Height - 1), (int)size.Width,
+            (int)size.Height);
+        thumbnailGraphic.DrawString(text, drawFont, fontBrush, atPoint);
+
+        // Draw bounding box on image
+        thumbnailGraphic.DrawRectangle(pen, x, y, width, height);
     }
 
-    public class OnnxPredictionOutput
+    if (!Directory.Exists(outputImageLocation))
     {
-        [ColumnName("Identity:0")]
-        public float[] Boxes { get; set; } = { };
-
-        [ColumnName("Identity_1:0")]
-        public float[] Labels { get; set; } = { };
-
-        [ColumnName("Identity_2:0")]
-        public float[] Scores { get; set; } = { };
+        Directory.CreateDirectory(outputImageLocation);
     }
 
-    public class ObjectDetectionPrediction
+    image.Save(Path.Combine(outputImageLocation, imageName));
+}
+
+void LogDetectedObjects(string imageName, IList<YoloBoundingBox> boundingBoxes)
+{
+    Console.WriteLine($".....The objects in the image {imageName} are detected as below....");
+
+    foreach (var box in boundingBoxes)
     {
-        public string Label { get; set; } = string.Empty;
-        public float Score { get; set; }
-        public BoundingBox Box { get; set; } = new();
+        Console.WriteLine($"{box.Label} and its Confidence score: {box.Confidence}");
     }
 
-    public class BoundingBox
-    {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-    }
-
-    internal class Program
-    {
-        private static List<string>? _cocoLabels;
-
-        static void Main()
-        {
-            const string imagesFolder = @"C:\Git\ML.NET\Assets"; // Update this path
-
-            //yolov4
-            //const string modelFilePath = @"C:\Git\ML.NET\Models\yolov4\yolov4.onnx"; // Update this path
-            //const string modelInputName = "input_1:0"; // Replace with the actual input node name of your model
-            //const string cocoNamesFile = @"C:\Git\ML.NET\Models\yolov4\coco.names";
-
-            //yolov5
-            const string modelFilePath = @"C:\Git\ML.NET\Models\yolov5\yolov5m.onnx"; // Update this path
-            const string modelInputName = "input_1:0"; // Replace with the actual input node name of your model
-            const string cocoNamesFile = @"C:\Git\ML.NET\Models\yolov5\coco.names";
-
-            // Load COCO class names.
-            _cocoLabels = File.ReadAllLines(cocoNamesFile).ToList();
-
-            var mlContext = new MLContext();
-
-            var pipeline = mlContext.Transforms.LoadImages(
-                                outputColumnName: "image",
-                                imageFolder: imagesFolder,
-                                inputColumnName: nameof(ImageData.ImagePath))
-                           .Append(mlContext.Transforms.ResizeImages(
-                                outputColumnName: "image",
-                                imageWidth: 416,
-                                imageHeight: 416,
-                                inputColumnName: "image"))
-                           .Append(mlContext.Transforms.ExtractPixels(
-                                outputColumnName: "image"))
-                           // Copy the "image" column to the expected input node name.
-                           .Append(mlContext.Transforms.CopyColumns(
-                                outputColumnName: modelInputName,
-                                inputColumnName: "image"))
-                           .Append(mlContext.Transforms.ApplyOnnxModel(
-                                modelFile: modelFilePath,
-                                outputColumnNames: new[] { "Identity:0", "Identity_1:0", "Identity_2:0" },
-                                inputColumnNames: new[] { modelInputName }));
-
-            var imageFiles = Directory.GetFiles(imagesFolder, "*.*", SearchOption.TopDirectoryOnly)
-                                      .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                                     file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                                     file.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                                      .ToList();
-
-            var images = imageFiles.Select(f => new ImageData { ImagePath = Path.GetFileName(f) }).ToList();
-
-            var data = mlContext.Data.LoadFromEnumerable(images);
-            ITransformer model = pipeline.Fit(data);
-
-            // Create a prediction engine that outputs the raw arrays.
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<ImageData, OnnxPredictionOutput>(model);
-
-            foreach (var image in images)
-            {
-                Console.WriteLine($"Processing image: {image.ImagePath}");
-                var onnxOutput = predictionEngine.Predict(image);
-
-                // Convert raw arrays into a list of detections.
-                var detections = ConvertOnnxOutputToDetections(onnxOutput, threshold: 0.5f);
-                // Apply non-maximum suppression to remove overlapping detections.
-                var finalDetections = ApplyNonMaxSuppression(detections, iouThreshold: 0.5f);
-
-                foreach (var detection in finalDetections)
-                {
-                    Console.WriteLine($"\tDetected object: {detection.Label} (Confidence: {detection.Score:F2})");
-                    Console.WriteLine($"\tBounding Box: [X: {detection.Box.X:F1}, Y: {detection.Box.Y:F1}, Width: {detection.Box.Width:F1}, Height: {detection.Box.Height:F1}]");
-                }
-            }
-
-            Console.WriteLine("Processing complete. Press any key to exit.");
-            Console.ReadKey();
-        }
-
-        // Converts the raw model output to a list of ObjectDetectionPrediction objects.
-        static List<ObjectDetectionPrediction> ConvertOnnxOutputToDetections(OnnxPredictionOutput output, float threshold)
-        {
-            var detections = new List<ObjectDetectionPrediction>();
-
-            // Loop through each score in the output.
-            for (var i = 0; i < output.Scores.Length; i++)
-            {
-                var score = output.Scores[i];
-                if (score < threshold)
-                    continue; // Filter out low-confidence detections.
-
-                // Retrieve bounding box coordinates.
-                var x = output.Boxes[i * 4];
-                var y = output.Boxes[i * 4 + 1];
-                var width = output.Boxes[i * 4 + 2];
-                var height = output.Boxes[i * 4 + 3];
-
-                // Convert the label value (float) to an integer and map it to a class name.
-                var labelId = (long)Math.Round(output.Labels[i]);
-                var labelName = GetLabelName(labelId);
-
-                detections.Add(new ObjectDetectionPrediction
-                {
-                    Label = labelName,
-                    Score = score,
-                    Box = new BoundingBox { X = x, Y = y, Width = width, Height = height }
-                });
-            }
-
-            return detections;
-        }
-
-        // Applies non-maximum suppression to filter out overlapping detections.
-        static List<ObjectDetectionPrediction> ApplyNonMaxSuppression(List<ObjectDetectionPrediction> detections, float iouThreshold)
-        {
-            var finalDetections = new List<ObjectDetectionPrediction>();
-
-            // Sort detections by descending score.
-            var sortedDetections = detections.OrderByDescending(d => d.Score).ToList();
-
-            while (sortedDetections.Any())
-            {
-                // Take the detection with the highest score.
-                var bestDetection = sortedDetections.First();
-                finalDetections.Add(bestDetection);
-                sortedDetections.RemoveAt(0);
-
-                // Remove detections with a high overlap (IoU) with the best detection.
-                sortedDetections = sortedDetections.Where(d => IntersectionOverUnion(bestDetection.Box, d.Box) < iouThreshold).ToList();
-            }
-
-            return finalDetections;
-        }
-
-        // Computes Intersection over Union (IoU) for two bounding boxes.
-        static float IntersectionOverUnion(BoundingBox boxA, BoundingBox boxB)
-        {
-            var xA = Math.Max(boxA.X, boxB.X);
-            var yA = Math.Max(boxA.Y, boxB.Y);
-            var xB = Math.Min(boxA.X + boxA.Width, boxB.X + boxB.Width);
-            var yB = Math.Min(boxA.Y + boxA.Height, boxB.Y + boxB.Height);
-
-            var interWidth = Math.Max(0, xB - xA);
-            var interHeight = Math.Max(0, yB - yA);
-            var interArea = interWidth * interHeight;
-
-            var boxAArea = boxA.Width * boxA.Height;
-            var boxBArea = boxB.Width * boxB.Height;
-
-            var unionArea = boxAArea + boxBArea - interArea;
-            return unionArea == 0 ? 0 : interArea / unionArea;
-        }
-
-        static string GetLabelName(long label)
-        {
-            if (_cocoLabels != null && label >= 0 && label < _cocoLabels.Count)
-                return _cocoLabels[(int)label];
-            return "unknown";
-        }
-    }
+    Console.WriteLine("");
 }
