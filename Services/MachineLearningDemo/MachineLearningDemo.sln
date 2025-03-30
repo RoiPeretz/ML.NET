@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineLearningDemo.AppHost
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineLearningDemo.ServiceDefaults", "MachineLearningDemo.ServiceDefaults\MachineLearningDemo.ServiceDefaults.csproj", "{4038F4DB-CF27-55F5-BDDA-8168420D49F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineLearningDemo.Detection.Chat", "MachineLearningDemo.ApiService\MachineLearningDemo.Detection.Chat.csproj", "{E97FDC9D-D5B1-48E9-537E-4124F1DE4D4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineLearningDemo.Detection.Chat", "MachineLearningDemo.Detection.Chat\MachineLearningDemo.Detection.Chat.csproj", "{E97FDC9D-D5B1-48E9-537E-4124F1DE4D4E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
