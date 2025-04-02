@@ -1,5 +1,5 @@
 <template>
-  <HelloWorld />
+  <ImageIngestion />
 </template>
 
 <script lang="ts" setup>
