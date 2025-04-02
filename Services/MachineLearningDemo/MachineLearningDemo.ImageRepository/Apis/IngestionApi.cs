@@ -25,7 +25,7 @@ public static class IngestionApi
         
         var fileDto = new FileModel
         {
-            FileName = Guid.NewGuid() + Path.GetExtension(file.FileName),
+            FileName = file.FileName,
             Size = file.Length,
             ContentType = file.ContentType,
             Data = memoryStream.ToArray()

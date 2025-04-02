@@ -16,7 +16,10 @@ builder.Services.AddProblemDetails();
 builder.Services.AddDistributedMemoryCache();
 
 builder.AddEventBus("eventbus")
-    .AddSubscription<IngestionStatusEvent, IngestionStatusEventHandler>();
+    .AddSubscription<IngestionStartedEvent, IngestionStatusEventHandler>()
+    .AddSubscription<AddedToObjectStorageEvent, IngestionStatusEventHandler>()
+    .AddSubscription<DetectionStartedEvent, IngestionStatusEventHandler>()
+    .AddSubscription<DetectionEndedEvent, IngestionStatusEventHandler>();
 
 builder.Services.AddHttpClient<IImageRepositoryClientGen, ImageRepositoryClientGen>(
     static client => client.BaseAddress = new Uri("https+http://ImageRepository"));
@@ -46,9 +49,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddSingleton<IngestionStatusService>();
-builder.Services.AddTransient<IIngestionStatusService>(sp => sp.GetRequiredService<IngestionStatusService>());
-builder.Services.AddTransient<IIngestionStatusService>(sp => sp.GetRequiredService<IngestionStatusService>());
+builder.Services.AddSingleton<IIngestionStatusService, IngestionStatusService>();
 
 //TODO: Switch Swashbuckle to Microsoft.AspNetCore.OpenApi 
 builder.Services.AddSwaggerGen();

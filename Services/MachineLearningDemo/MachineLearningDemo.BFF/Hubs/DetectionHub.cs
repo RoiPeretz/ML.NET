@@ -1,4 +1,5 @@
-﻿using MachineLearningDemo.Core.EventBus.Abstractions;
+﻿using MachineLearningDemo.BFF.Services;
+using MachineLearningDemo.Core.EventBus.Abstractions;
 using MachineLearningDemo.Core.EventBus.Events;
 using Microsoft.AspNetCore.SignalR;
 
@@ -9,6 +10,7 @@ public class DetectionHub(
     IImageRepositoryClientGen imageRepositoryClient)
     : Hub
 {
+
     public async Task Detect(string fileName, string base64String, string contentType)
     {
         var name = Guid.NewGuid() + Path.GetExtension(fileName);

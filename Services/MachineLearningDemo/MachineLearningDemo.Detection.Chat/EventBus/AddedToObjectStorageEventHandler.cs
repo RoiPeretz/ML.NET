@@ -7,12 +7,20 @@ namespace MachineLearningDemo.Detection.Chat.EventBus;
 
 internal class AddedToObjectStorageEventHandler(
     IImageObjectDetectionService service,
+    ILogger<AddedToObjectStorageEventHandler> logger,
     IAssetsObjectStorageClient assetsObjectStorageClient)
     : IIntegrationEventHandler<AddedToObjectStorageEvent>
 {
     public async Task Handle(AddedToObjectStorageEvent @event)
     {
         var asset = await assetsObjectStorageClient.GetAssetByNameAsync(@event.FileName);
-        await service.Detect(@event.FileName, asset?.Data);
+
+        if (asset is null)
+        {
+            logger.LogError("Failed to get {FileName} from object storage.", @event.FileName);
+            return;
+        }
+
+        await service.Detect(@event.FileName, asset.Data, asset.ContentType);
     }
 }

@@ -28,7 +28,7 @@ public static class DetectionApi
         var data = new ReadOnlyMemory<byte>(memoryStream.ToArray());
         var name = Guid.NewGuid() + Path.GetExtension(file.FileName);
 
-        var result = await service.Detect(name, data);
+        var result = await service.Detect(name, data, file.ContentType);
         
         if (result is null)
         {

@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddObjectStorage();
-builder.AddPersistence(new PersistenceLayerSettings("elasticsearch", "chatObjectDetection"));
+builder.AddPersistence(new PersistenceLayerSettings("elasticsearch", "chat-object-detection"));
 
 builder.AddEventBus("eventbus")
     .AddSubscription<AddedToObjectStorageEvent, AddedToObjectStorageEventHandler>();

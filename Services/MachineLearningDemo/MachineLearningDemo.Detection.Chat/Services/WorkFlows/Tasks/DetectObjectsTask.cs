@@ -5,12 +5,12 @@ namespace MachineLearningDemo.Detection.Chat.Services.WorkFlows.Tasks;
 
 internal interface IDetectObjectsTask
 {
-    Task<IEnumerable<DetectedObject>> Detect(IChatClient chatClient, ReadOnlyMemory<byte> image);
+    Task<IEnumerable<DetectedObject>> Detect(IChatClient chatClient, ReadOnlyMemory<byte> image, string contentType);
 }
 
 internal class DetectObjectsTask : IDetectObjectsTask
 {
-    public async Task<IEnumerable<DetectedObject>> Detect(IChatClient chatClient, ReadOnlyMemory<byte> image)
+    public async Task<IEnumerable<DetectedObject>> Detect(IChatClient chatClient, ReadOnlyMemory<byte> image, string contentType)
     {
         var message = new ChatMessage(ChatRole.User,
             $"""
@@ -28,7 +28,7 @@ internal class DetectObjectsTask : IDetectObjectsTask
              Finally, provide a brief, high-level summary that could serve as an 'alt-text' description for accessibility."
              """);
 
-        message.Contents.Add(new DataContent(image, "image/png"));
+        message.Contents.Add(new DataContent(image, contentType));
 
         var chatResponse = await chatClient.GetResponseAsync<IEnumerable<DetectedObject>>(message);
 
