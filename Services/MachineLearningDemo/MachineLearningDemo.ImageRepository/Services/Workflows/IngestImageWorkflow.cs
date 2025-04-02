@@ -23,12 +23,12 @@ public class IngestImageWorkflow(
             return false;
         }
 
-        var @event = new AssetIngestedEvent
+        var assetIngestedEvent = new AddedToObjectStorageEvent
         {
             FileName = file.FileName,
         };
 
-        await eventBus.PublishAsync(@event);
+        await eventBus.PublishAsync(assetIngestedEvent);
         return true;
     }
 }

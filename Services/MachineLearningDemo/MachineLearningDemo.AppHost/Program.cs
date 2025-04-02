@@ -30,7 +30,8 @@ var ollama = builder.AddOllama("ollama")
 var llava = ollama.AddModel("llava:13b");
 //var janus = ollama.AddModel("erwan2/DeepSeek-Janus-Pro-7B-Vision-Encoder");
 
-var chatObjectDetection = builder.AddProject<Projects.MachineLearningDemo_Detection_Chat>("DetectionChat")
+var detectionChat = builder.AddProject<Projects.MachineLearningDemo_Detection_Chat>("DetectionChat")
+    .WithExternalHttpEndpoints()
     .WithReference(minio).WaitFor(minio)
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(elasticsearch).WaitFor(elasticsearch)
@@ -38,8 +39,14 @@ var chatObjectDetection = builder.AddProject<Projects.MachineLearningDemo_Detect
     //.WithReference(janus).WaitFor(janus)
 #endregion
 
-builder.AddProject<Projects.MachineLearningDemo_ImageRepository>("ImageRepository")
+var imageRepository = builder.AddProject<Projects.MachineLearningDemo_ImageRepository>("ImageRepository")
+    .WithExternalHttpEndpoints()
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(minio).WaitFor(minio);
+
+builder.AddProject<Projects.MachineLearningDemo_BFF>("BFF")
+    .WithReference(detectionChat)
+    .WithReference(imageRepository)
+    .WithReference(rabbitMq).WaitFor(rabbitMq);
 
 builder.Build().Run();

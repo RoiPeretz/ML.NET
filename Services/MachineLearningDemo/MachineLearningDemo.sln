@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineLearningDemo.Core", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{CCB4CD7D-0A67-4474-B2C2-B157CEA8A70B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineLearningDemo.BFF", "MachineLearningDemo.BFF\MachineLearningDemo.BFF.csproj", "{C66CCAE7-CDA3-2DA4-45B2-0DF76A209AD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{38B389AE-42B3-47EE-84E3-FBC43AEBF9AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38B389AE-42B3-47EE-84E3-FBC43AEBF9AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38B389AE-42B3-47EE-84E3-FBC43AEBF9AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C66CCAE7-CDA3-2DA4-45B2-0DF76A209AD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C66CCAE7-CDA3-2DA4-45B2-0DF76A209AD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C66CCAE7-CDA3-2DA4-45B2-0DF76A209AD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C66CCAE7-CDA3-2DA4-45B2-0DF76A209AD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 		{C8361EB2-0E9D-1223-4939-AB7A60A727F8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{CACCBC8B-3C28-469A-A648-9F9771BEF7EF} = {C61488ED-D5AE-4C98-AD2E-CABE07DFE600}
 		{38B389AE-42B3-47EE-84E3-FBC43AEBF9AA} = {CCB4CD7D-0A67-4474-B2C2-B157CEA8A70B}
+		{C66CCAE7-CDA3-2DA4-45B2-0DF76A209AD5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E47CC3BC-FA90-4B30-A719-9ED47592D2EC}

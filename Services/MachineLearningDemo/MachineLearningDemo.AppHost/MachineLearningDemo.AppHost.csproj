@@ -12,7 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MachineLearningDemo.ApiService\MachineLearningDemo.Detection.Chat.csproj" />
+    <ProjectReference Include="..\MachineLearningDemo.BFF\MachineLearningDemo.BFF.csproj" />
+    <ProjectReference Include="..\MachineLearningDemo.Detection.Chat\MachineLearningDemo.Detection.Chat.csproj" />
     <ProjectReference Include="..\MachineLearningDemo.ImageRepository\MachineLearningDemo.ImageRepository.csproj" />
   </ItemGroup>
 

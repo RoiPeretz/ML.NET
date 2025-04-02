@@ -34,7 +34,7 @@ builder.Services.AddObjectStorage();
 builder.AddPersistence(new PersistenceLayerSettings("elasticsearch", "chatObjectDetection"));
 
 builder.AddEventBus("eventbus")
-    .AddSubscription<AssetIngestedEvent, AssetIngestionEventHandler>();
+    .AddSubscription<AddedToObjectStorageEvent, AddedToObjectStorageEventHandler>();
 
 builder.Services.AddWrappedChatClient("ollama-llava");
 //builder.Services.AddWrappedChatClient("ollama-janus");

@@ -5,12 +5,12 @@ using MachineLearningDemo.Detection.Chat.Services;
 
 namespace MachineLearningDemo.Detection.Chat.EventBus;
 
-internal class AssetIngestionEventHandler(
+internal class AddedToObjectStorageEventHandler(
     IImageObjectDetectionService service,
     IAssetsObjectStorageClient assetsObjectStorageClient)
-    : IIntegrationEventHandler<AssetIngestedEvent>
+    : IIntegrationEventHandler<AddedToObjectStorageEvent>
 {
-    public async Task Handle(AssetIngestedEvent @event)
+    public async Task Handle(AddedToObjectStorageEvent @event)
     {
         var asset = await assetsObjectStorageClient.GetAssetByNameAsync(@event.FileName);
         await service.Detect(@event.FileName, asset?.Data);
