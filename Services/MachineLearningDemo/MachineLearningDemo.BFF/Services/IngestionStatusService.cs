@@ -7,6 +7,7 @@ namespace MachineLearningDemo.BFF.Services;
 public interface IIngestionStatusService 
 {
     void OnIngestionEvent(IngestionStatusEvent @event);
+    Dictionary<string, List<IngestionStatusEvent>> FileToEventsMap { get; }
 }
 
 public class IngestionStatusService(IHubContext<DetectionHub> detectionHubContext)
@@ -23,6 +24,6 @@ public class IngestionStatusService(IHubContext<DetectionHub> detectionHubContex
 
         FileToEventsMap[@event.FileName].Add(@event);
 
-        detectionHubContext.Clients.All.SendAsync("IngestionStatusChanged", FileToEventsMap);
+        detectionHubContext.Clients.All.SendAsync("IngestionStatusAdded", @event);
     }
 }

@@ -29,13 +29,14 @@ internal class ObjectDetectionWorkflow(
         await eventBus.PublishAsync(detectionStarted); 
 
         var detectedObjects = await detectObjectsTask.Detect(chatClientWrapper.ChatClient, image, contentType);
+        var detectionTime = DateTime.UtcNow.Subtract(detectionStarted.CreationDate).TotalMilliseconds;
 
         var result = new ImageDetectionResult
         {
             FileName = fileName,
             DetectedObjects = detectedObjects,
             DetectionSource = chatClientWrapper.ModelName,
-            DetectionTimeMilliseconds = DateTime.UtcNow.Subtract(detectionStarted.CreationDate).TotalMilliseconds
+            DetectionTimeMilliseconds = detectionTime
         };
 
         await addImageDetectionResultCommand.Add(result);
@@ -43,10 +44,11 @@ internal class ObjectDetectionWorkflow(
         var detectionEnded = new DetectionEndedEvent
         {
             FileName = fileName,
-            ModelName = chatClientWrapper.ModelName
+            DetectionTime = detectionTime,
+            ModelName = chatClientWrapper.ModelName,
         };
 
-        await eventBus.PublishAsync(detectionStarted);
+        await eventBus.PublishAsync(detectionEnded);
 
         return result;
     }

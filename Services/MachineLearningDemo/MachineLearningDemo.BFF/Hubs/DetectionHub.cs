@@ -7,6 +7,7 @@ namespace MachineLearningDemo.BFF.Hubs;
 
 public class DetectionHub(
     IEventBus eventBus,
+    IIngestionStatusService ingestionStatusService,
     IImageRepositoryClientGen imageRepositoryClient)
     : Hub
 {
@@ -33,5 +34,10 @@ public class DetectionHub(
         var formFile = new FileParameter(stream, name, contentType);
         
         await imageRepositoryClient.IngestAsync(formFile);
+    }
+
+    public IDictionary<string, List<IngestionStatusEvent>> GetCurrentStatus()
+    {
+        return ingestionStatusService.FileToEventsMap;
     }
 }
