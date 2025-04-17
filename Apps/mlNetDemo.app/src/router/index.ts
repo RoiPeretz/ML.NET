@@ -7,11 +7,36 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import { setupLayouts } from 'virtual:generated-layouts'
-import { routes } from 'vue-router/auto-routes'
+import { routes as autoRoutes } from 'vue-router/auto-routes'
+
+const routes = [
+  {
+    path: '/',
+    name: 'DefaultLayout',
+    component: () => import('@/layouts/default.vue'),
+    children: [
+      {
+        path: '',
+        redirect: '/image-ingestion', // Default child route
+      },
+      {
+        path: 'detection-search',
+        name: 'DetectionSearchPage',
+        component: () => import('@/pages/detectionSearchPage.vue'),
+      },
+      {
+        path: 'image-ingestion',
+        name: 'ImageIngestionPage',
+        component: () => import('@/pages/imageIngestionPage.vue'),
+      },
+    ],
+  },
+  ...setupLayouts(autoRoutes),
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: setupLayouts(routes),
+  routes,
 })
 
 // Workaround for https://github.com/vitejs/vite/issues/11804

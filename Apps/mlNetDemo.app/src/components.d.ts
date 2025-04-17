@@ -7,8 +7,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppFooter: typeof import('./components/AppFooter.vue')['default']
+    DetectionSearch: typeof import('./components/detectionSearch.vue')['default']
+    DetectionSearchComponent: typeof import('./components/detectionSearchComponent.vue')['default']
     ImageIngestion: typeof import('./components/imageIngestion.vue')['default']
+    ImageIngestionPage: typeof import('./components/ImageIngestionPage.vue')['default']
+    IngestionQueue: typeof import('./components/IngestionQueue.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

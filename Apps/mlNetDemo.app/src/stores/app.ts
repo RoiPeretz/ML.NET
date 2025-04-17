@@ -1,4 +1,3 @@
-// Utilities
 import type { IngestionStatusEvent } from '@/models/ingestionStatusEvent'
 import { defineStore } from 'pinia'
 
