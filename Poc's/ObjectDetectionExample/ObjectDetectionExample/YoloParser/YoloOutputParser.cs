@@ -1,34 +1,36 @@
 ﻿using System.Drawing;
 
-namespace ObjectDetectionExample.YoloParser
+namespace ObjectDetection.YoloParser
 {
     class YoloOutputParser
     {
-        public YoloOutputParser(string cocoNamesFile)
-        {
-            _labels = File.ReadAllLines(cocoNamesFile).ToList();
-        }
-
         class CellDimensions : DimensionsBase { }
 
-        public const int RowCount = 13;
-        public const int ColCount = 13;
-        public const int ChannelCount = 125;
-        public const int BoxesPerCell = 5;
-        public const int BoxInfoFeatureCount = 5;
-        public const int ClassCount = 20;
-        public const float CellWidth = 32;
-        public const float CellHeight = 32;
+        public const int ROW_COUNT = 13;
+        public const int COL_COUNT = 13;
+        public const int CHANNEL_COUNT = 125;
+        public const int BOXES_PER_CELL = 5;
+        public const int BOX_INFO_FEATURE_COUNT = 5;
+        public const int CLASS_COUNT = 20;
+        public const float CELL_WIDTH = 32;
+        public const float CELL_HEIGHT = 32;
 
-        private readonly int _channelStride = RowCount * ColCount;
-        private readonly List<string> _labels;
+        private int channelStride = ROW_COUNT * COL_COUNT;
 
-        private readonly float[] _anchors = new float[]
+        private float[] anchors = new float[]
         {
             1.08F, 1.19F, 3.42F, 4.41F, 6.63F, 11.38F, 9.42F, 5.11F, 16.62F, 10.52F
         };
 
-        private static Color[] _classColors = new Color[]
+        private string[] labels = new string[]
+        {
+            "aeroplane", "bicycle", "bird", "boat", "bottle",
+            "bus", "car", "cat", "chair", "cow",
+            "diningtable", "dog", "horse", "motorbike", "person",
+            "pottedplant", "sheep", "sofa", "train", "tvmonitor"
+        };
+
+        private static Color[] classColors = new Color[]
         {
             Color.Khaki,
             Color.Fuchsia,
@@ -74,7 +76,7 @@ namespace ObjectDetectionExample.YoloParser
             // WinML flattens into a 1D array.  To access a specific channel 
             // for a given (x,y) cell position, we need to calculate an offset
             // into the array
-            return (channel * this._channelStride) + (y * ColCount) + x;
+            return (channel * this.channelStride) + (y * COL_COUNT) + x;
         }
 
         private BoundingBoxDimensions ExtractBoundingBoxDimensions(float[] modelOutput, int x, int y, int channel)
@@ -97,18 +99,18 @@ namespace ObjectDetectionExample.YoloParser
         {
             return new CellDimensions
             {
-                X = (x + Sigmoid(boxDimensions.X)) * CellWidth,
-                Y = (y + Sigmoid(boxDimensions.Y)) * CellHeight,
-                Width = (float)Math.Exp(boxDimensions.Width) * CellWidth * _anchors[box * 2],
-                Height = (float)Math.Exp(boxDimensions.Height) * CellHeight * _anchors[box * 2 + 1],
+                X = ((float)x + Sigmoid(boxDimensions.X)) * CELL_WIDTH,
+                Y = ((float)y + Sigmoid(boxDimensions.Y)) * CELL_HEIGHT,
+                Width = (float)Math.Exp(boxDimensions.Width) * CELL_WIDTH * anchors[box * 2],
+                Height = (float)Math.Exp(boxDimensions.Height) * CELL_HEIGHT * anchors[box * 2 + 1],
             };
         }
 
         public float[] ExtractClasses(float[] modelOutput, int x, int y, int channel)
         {
-            var predictedClasses = new float[ClassCount];
-            var predictedClassOffset = channel + BoxInfoFeatureCount;
-            for (var predictedClass = 0; predictedClass < ClassCount; predictedClass++)
+            float[] predictedClasses = new float[CLASS_COUNT];
+            int predictedClassOffset = channel + BOX_INFO_FEATURE_COUNT;
+            for (int predictedClass = 0; predictedClass < CLASS_COUNT; predictedClass++)
             {
                 predictedClasses[predictedClass] = modelOutput[GetOffset(x, y, predictedClass + predictedClassOffset)];
             }
@@ -149,24 +151,24 @@ namespace ObjectDetectionExample.YoloParser
         {
             var boxes = new List<YoloBoundingBox>();
 
-            for (var row = 0; row < RowCount; row++)
+            for (int row = 0; row < ROW_COUNT; row++)
             {
-                for (var column = 0; column < ColCount; column++)
+                for (int column = 0; column < COL_COUNT; column++)
                 {
-                    for (var box = 0; box < BoxesPerCell; box++)
+                    for (int box = 0; box < BOXES_PER_CELL; box++)
                     {
-                        var channel = (box * (ClassCount + BoxInfoFeatureCount));
+                        var channel = (box * (CLASS_COUNT + BOX_INFO_FEATURE_COUNT));
 
-                        var boundingBoxDimensions = ExtractBoundingBoxDimensions(yoloModelOutputs, row, column, channel);
+                        BoundingBoxDimensions boundingBoxDimensions = ExtractBoundingBoxDimensions(yoloModelOutputs, row, column, channel);
 
-                        var confidence = GetConfidence(yoloModelOutputs, row, column, channel);
+                        float confidence = GetConfidence(yoloModelOutputs, row, column, channel);
 
-                        var mappedBoundingBox = MapBoundingBoxToCell(row, column, box, boundingBoxDimensions);
+                        CellDimensions mappedBoundingBox = MapBoundingBoxToCell(row, column, box, boundingBoxDimensions);
 
                         if (confidence < threshold)
                             continue;
 
-                        var predictedClasses = ExtractClasses(yoloModelOutputs, row, column, channel);
+                        float[] predictedClasses = ExtractClasses(yoloModelOutputs, row, column, channel);
 
                         var (topResultIndex, topResultScore) = GetTopResult(predictedClasses);
                         var topScore = topResultScore * confidence;
@@ -184,8 +186,8 @@ namespace ObjectDetectionExample.YoloParser
                                 Height = mappedBoundingBox.Height,
                             },
                             Confidence = topScore,
-                            Label = _labels[topResultIndex],
-                            BoxColor = _classColors[topResultIndex]
+                            Label = labels[topResultIndex],
+                            BoxColor = classColors[topResultIndex]
                         });
                     }
                 }
@@ -198,7 +200,7 @@ namespace ObjectDetectionExample.YoloParser
             var activeCount = boxes.Count;
             var isActiveBoxes = new bool[boxes.Count];
 
-            for (var i = 0; i < isActiveBoxes.Length; i++)
+            for (int i = 0; i < isActiveBoxes.Length; i++)
                 isActiveBoxes[i] = true;
 
             var sortedBoxes = boxes.Select((b, i) => new { Box = b, Index = i })
@@ -207,7 +209,7 @@ namespace ObjectDetectionExample.YoloParser
 
             var results = new List<YoloBoundingBox>();
 
-            for (var i = 0; i < boxes.Count; i++)
+            for (int i = 0; i < boxes.Count; i++)
             {
                 if (isActiveBoxes[i])
                 {

@@ -1,4 +1,4 @@
-﻿namespace ObjectDetectionExample.YoloParser
+﻿namespace ObjectDetection.YoloParser
 {
     public class DimensionsBase
     {
