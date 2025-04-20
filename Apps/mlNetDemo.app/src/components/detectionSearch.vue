@@ -29,9 +29,14 @@
         :key="index"
       >
         <v-card
-          class="mb-4 mx-auto"
-          max-width="600"
+          class="mx-auto"
+          max-width="344"
         >
+          <v-img
+            height="200px"
+            :src="getFileUrl(result.fileName)"
+          />
+
           <v-card-title>
             File: {{ result.fileName }}
           </v-card-title>
@@ -96,6 +101,10 @@ const bffHubClient = inject<IBffHubClient>("bffHubClient");
 const isSearchValid = computed(() => !!searchQuery.value);
 const searchRule = (value: string) => !!value || "Search query cannot be empty";
 
+const getFileUrl = (fileName: string) => {
+  return `http://localhost:9000/assets/${fileName}`;
+};
+
 function toggleExpansion(index: number) {
   expandedIndex.value = expandedIndex.value === index ? null : index;
 }
@@ -107,7 +116,7 @@ async function performSearch() {
   }
 
   results.value = await bffHubClient?.Query(searchQuery.value) || [];
-
+  console.log("Search results:", results.value);
   await nextTick();
 }
 </script>
