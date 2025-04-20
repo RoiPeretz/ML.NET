@@ -16,10 +16,6 @@ const routes = [
     component: () => import('@/layouts/default.vue'),
     children: [
       {
-        path: '',
-        redirect: '/image-ingestion', // Default child route
-      },
-      {
         path: 'detection-search',
         name: 'DetectionSearchPage',
         component: () => import('@/pages/detectionSearchPage.vue'),

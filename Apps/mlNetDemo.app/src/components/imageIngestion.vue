@@ -19,12 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import type { IDetactionHubClient } from "../hubs/detactionHubClient";
+import type { IBffHubClient } from "../hubs/detactionHubClient";
 import { ref, inject } from "vue";
 import { VFileUpload } from "vuetify/labs/VFileUpload";
 
 const selectedFiles = ref<File[]>();
-const detectionHubClient = inject<IDetactionHubClient>("detectionHubClient");
+const bffHubClient = inject<IBffHubClient>("bffHubClient");
 
 async function startIngest() {
   if (!selectedFiles.value || selectedFiles.value.length === 0) {
@@ -43,7 +43,7 @@ async function startIngest() {
           return;
         }
         if (arrayBuffer instanceof ArrayBuffer) {
-          detectionHubClient?.detect(file.name, arrayBuffer, file.type);
+          bffHubClient?.detect(file.name, arrayBuffer, file.type);
         } else {
           console.error("File result is not an ArrayBuffer.");
         }

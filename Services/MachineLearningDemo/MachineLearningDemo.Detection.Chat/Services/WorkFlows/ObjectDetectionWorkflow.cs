@@ -35,8 +35,8 @@ internal class ObjectDetectionWorkflow(
         {
             FileName = fileName,
             DetectedObjects = detectedObjects,
-            DetectionSource = chatClientWrapper.ModelName,
-            DetectionTimeMilliseconds = detectionTime
+            DetectionSource = "MachineLearningDemo.Detection.Chat " + chatClientWrapper.ModelName,
+            DetectionTimeMilliseconds = detectionTime,
         };
 
         await addImageDetectionResultCommand.Add(result);

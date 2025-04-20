@@ -1,5 +1,6 @@
 using Asp.Versioning;
-using MachineLearningDemo.BFF;
+using MachineLearningDemo.BFF.Clients.DetectionChat;
+using MachineLearningDemo.BFF.Clients.ImageRepository;
 using MachineLearningDemo.BFF.EventBus;
 using MachineLearningDemo.BFF.Hubs;
 using MachineLearningDemo.BFF.Services;
@@ -23,6 +24,9 @@ builder.AddEventBus("eventbus")
 
 builder.Services.AddHttpClient<IImageRepositoryClientGen, ImageRepositoryClientGen>(
     static client => client.BaseAddress = new Uri("https+http://ImageRepository"));
+
+builder.Services.AddHttpClient<IDetectionChatClientGen, DetectionChatClientGen>(
+    static client => client.BaseAddress = new Uri("https+http://DetectionChat"));
 
 builder.Services.AddSignalR(o =>
 {
@@ -49,6 +53,7 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddTransient<IQueryService, QueryService>();
 builder.Services.AddSingleton<IIngestionStatusService, IngestionStatusService>();
 
 //TODO: Switch Swashbuckle to Microsoft.AspNetCore.OpenApi 

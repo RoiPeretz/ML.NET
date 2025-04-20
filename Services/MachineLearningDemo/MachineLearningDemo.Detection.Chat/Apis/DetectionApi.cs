@@ -29,22 +29,23 @@ public static class DetectionApi
         var name = Guid.NewGuid() + Path.GetExtension(file.FileName);
 
         var result = await service.Detect(name, data, file.ContentType);
-        
-        if (result is null)
-        {
-            return TypedResults.Problem(detail: "Image object detection failed.", statusCode: 500);
-        }
 
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Ok<ImageDetectionResult[]>, BadRequest<string>, ProblemHttpResult>> GetDetectionResults(
+    internal static async Task<Results<Ok<ImageDetectionResult[]>, BadRequest<string>, ProblemHttpResult>> GetDetectionResults(
         string searchTerm,
         [FromServices] IQueryDetectionResultBySearchTerm queryDetectionResultBySearchTerm)
     {
         var result = await queryDetectionResultBySearchTerm.Query(searchTerm);
+        var imageDetectionResults = result as ImageDetectionResult[] ?? result.ToArray();
+        
+        if (imageDetectionResults.Any() is false)
+        {
+            return TypedResults.Problem(detail: "No detection results found.", statusCode: 404);
+        }
 
-        return TypedResults.Ok(result.ToArray());
+        return TypedResults.Ok(imageDetectionResults.ToArray());
     }
 
 }

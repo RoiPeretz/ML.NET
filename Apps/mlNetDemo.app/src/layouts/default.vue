@@ -17,8 +17,6 @@
     <v-main>
       <router-view />
     </v-main>
-
-    <AppFooter />
   </v-container>
 </template>
 
@@ -29,7 +27,6 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const tab = ref(route.path === '/detectionSearchPage' ? 'DetectionSearchPage' : 'ImageIngestionPage');
 
-// Ensure route.name is of type string for comparison
 if (typeof route.path === 'string') {
   tab.value = route.path === '/detectionSearchPage' ? 'DetectionSearchPage' : 'ImageIngestionPage';
 }

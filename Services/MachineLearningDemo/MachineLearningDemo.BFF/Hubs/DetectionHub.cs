@@ -1,12 +1,16 @@
-﻿using MachineLearningDemo.BFF.Services;
+﻿using MachineLearningDemo.BFF.Clients.DetectionChat;
+using MachineLearningDemo.BFF.Clients.ImageRepository;
+using MachineLearningDemo.BFF.Services;
 using MachineLearningDemo.Core.EventBus.Abstractions;
 using MachineLearningDemo.Core.EventBus.Events;
 using Microsoft.AspNetCore.SignalR;
+using FileParameter = MachineLearningDemo.BFF.Clients.ImageRepository.FileParameter;
 
 namespace MachineLearningDemo.BFF.Hubs;
 
-public class DetectionHub(
+internal class DetectionHub(
     IEventBus eventBus,
+    IQueryService queryService,
     IIngestionStatusService ingestionStatusService,
     IImageRepositoryClientGen imageRepositoryClient)
     : Hub
@@ -35,6 +39,8 @@ public class DetectionHub(
         
         await imageRepositoryClient.IngestAsync(formFile);
     }
+
+    public async Task<IEnumerable<ImageDetectionResult>> Query(string searchTerm) => await queryService.Query(searchTerm);
 
     public IDictionary<string, List<IngestionStatusEvent>> GetCurrentStatus()
     {

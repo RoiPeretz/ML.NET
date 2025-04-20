@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace MachineLearningDemo.BFF.Services;
 
-public interface IIngestionStatusService 
+internal interface IIngestionStatusService 
 {
     void OnIngestionEvent(IngestionStatusEvent @event);
     Dictionary<string, List<IngestionStatusEvent>> FileToEventsMap { get; }
 }
 
-public class IngestionStatusService(IHubContext<DetectionHub> detectionHubContext)
+internal class IngestionStatusService(IHubContext<DetectionHub> detectionHubContext)
     : IIngestionStatusService
 {
     public Dictionary<string, List<IngestionStatusEvent>> FileToEventsMap { get; } = new();

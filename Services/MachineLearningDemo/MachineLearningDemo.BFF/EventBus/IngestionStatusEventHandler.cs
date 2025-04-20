@@ -4,7 +4,7 @@ using MachineLearningDemo.Core.EventBus.Events;
 
 namespace MachineLearningDemo.BFF.EventBus;
 
-public class IngestionStatusEventHandler (
+internal class IngestionStatusEventHandler (
     ILogger<IngestionStatusEventHandler> logger,
     IIngestionStatusService ingestionStatusService)
     : IIntegrationEventHandler<IngestionStatusEvent>
