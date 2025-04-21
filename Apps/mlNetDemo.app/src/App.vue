@@ -14,8 +14,16 @@ const bffHubClient: IBffHubClient = new BffHubClient;
 provide<IBffHubClient>("bffHubClient", bffHubClient);
 
 bffHubClient.ingestionStatusAdded.subscribe((status) => {
-  const modelName = status.modelName || '';
-  const events: IngestionStatusEvent[] = store.currentStatus.get(modelName) || [];
+  const fileName = status.fileName || '';
+  const currentStatusMap: Map<string, IngestionStatusEvent[]> = store.currentStatus;
+  
+  let events: IngestionStatusEvent[] | undefined = currentStatusMap.get(fileName);
+  
+  if (!events) {
+    events = [];
+    store.currentStatus.set(fileName, events);
+  }
+
   events.push(status);
 });
 

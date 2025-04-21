@@ -17,8 +17,7 @@ public class ModelLoaderTask(
         logger.LogInformation("Read model");
         logger.LogInformation("Model location: {path}", settings.ModelFilePath);
         logger.LogInformation("Default parameters: image size=({ImageWidth},{ImageHeight})", ImageNetSettings.ImageWidth, ImageNetSettings.ImageHeight);
-        var x = Directory.GetCurrentDirectory();
-
+       
         // Create IDataView from empty list to obtain input data schema
         var data = mlContext.Data.LoadFromEnumerable(new List<ImageData>());
 
