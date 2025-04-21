@@ -36,7 +36,17 @@ var detectionChat = builder.AddProject<Projects.MachineLearningDemo_Detection_Ch
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(elasticsearch).WaitFor(elasticsearch)
     .WithReference(llava).WaitFor(llava);
-    //.WithReference(janus).WaitFor(janus)
+//.WithReference(janus).WaitFor(janus)
+#endregion
+
+#region Pretrained Object Detection Model
+
+var detectionPretrainedModel = builder
+    .AddProject<Projects.MachineLearningDemo_Detection_PretrainedModel>("DetectionPretrainedModel")
+    .WithExternalHttpEndpoints()
+    .WithReference(minio).WaitFor(minio)
+    .WithReference(rabbitMq).WaitFor(rabbitMq)
+    .WithReference(elasticsearch).WaitFor(elasticsearch);
 #endregion
 
 var imageRepository = builder.AddProject<Projects.MachineLearningDemo_ImageRepository>("ImageRepository")
@@ -46,6 +56,7 @@ var imageRepository = builder.AddProject<Projects.MachineLearningDemo_ImageRepos
 
 builder.AddProject<Projects.MachineLearningDemo_BFF>("BFF")
     .WithReference(detectionChat)
+    .WithReference(detectionPretrainedModel)
     .WithReference(imageRepository)
     .WithReference(rabbitMq).WaitFor(rabbitMq);
 

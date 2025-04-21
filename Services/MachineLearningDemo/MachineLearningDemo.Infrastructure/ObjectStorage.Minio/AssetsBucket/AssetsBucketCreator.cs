@@ -1,9 +1,11 @@
 ﻿using MachineLearningDemo.Core.ObjectStorage;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Minio;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
-using Minio;
+
+namespace MachineLearningDemo.Infrastructure.ObjectStorage.Minio.AssetsBucket;
 
 internal class AssetsBucketCreator(
     IMinioClient minioClient,

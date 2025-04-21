@@ -1,12 +1,14 @@
 using Asp.Versioning;
 using MachineLearningDemo.Core.EventBus.Events;
 using MachineLearningDemo.Core.EventBus.Extensions;
-using MachineLearningDemo.Detection.Chat.Apis;
-using MachineLearningDemo.Detection.Chat.ChatClient;
-using MachineLearningDemo.Detection.Chat.EventBus;
-using MachineLearningDemo.Detection.Chat.Services;
-using MachineLearningDemo.Detection.Chat.Services.WorkFlows;
-using MachineLearningDemo.Detection.Chat.Services.WorkFlows.Tasks;
+using MachineLearningDemo.Core.Persistence.Commands;
+using MachineLearningDemo.Detection.PretrainedModel;
+using MachineLearningDemo.Detection.PretrainedModel.Apis;
+using MachineLearningDemo.Detection.PretrainedModel.EventBus;
+using MachineLearningDemo.Detection.PretrainedModel.Services;
+using MachineLearningDemo.Detection.PretrainedModel.Services.WorkFlows;
+using MachineLearningDemo.Detection.PretrainedModel.Services.WorkFlows.Tasks;
+using MachineLearningDemo.Detection.PretrainedModel.YoloParser;
 using MachineLearningDemo.Infrastructure.EventBus.RabbitMq;
 using MachineLearningDemo.Infrastructure.ObjectStorage.Minio;
 using MachineLearningDemo.Infrastructure.Persistence.Elasticsearch;
@@ -14,7 +16,6 @@ using MachineLearningDemo.ServiceDefaults;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 builder.Services.AddDistributedMemoryCache();
@@ -31,17 +32,18 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddObjectStorage();
-builder.AddPersistence(new PersistenceLayerSettings("elasticsearch", "chat-object-detection"));
+builder.AddPersistence(new PersistenceLayerSettings("elasticsearch", "pretrained-model-detection"));
 
 builder.AddEventBus("eventbus")
     .AddSubscription<AddedToObjectStorageEvent, AddedToObjectStorageEventHandler>();
 
-builder.Services.AddWrappedChatClient("ollama-llava");
-//builder.Services.AddWrappedChatClient("ollama-janus");
-builder.Services.AddTransient<IDetectObjectsTask, DetectObjectsTask>();
-builder.Services.AddTransient<IChatClientBuilder, OllamaChatClientBuilder>();
+builder.Services.AddSingleton(new Settings());
+builder.Services.AddTransient<IModelLoaderTask, ModelLoaderTask>();
+builder.Services.AddTransient<IYoloOutputParser, YoloOutputParser>();
+builder.Services.AddTransient<ISaveImageToTempFileTask, SaveImageToTempFileTask>();
+builder.Services.AddTransient<IPredictDataUsingModelTask, PredictDataUsingModelTask>();
 builder.Services.AddTransient<IObjectDetectionWorkflow, ObjectDetectionWorkflow>();
-builder.Services.AddTransient<IChatImageObjectDetectionService, ChatImageObjectDetectionService>();
+builder.Services.AddTransient<IModelImageObjectDetectionService, ModelImageObjectDetectionService>();
 
 var app = builder.Build();
 
@@ -58,6 +60,6 @@ app.UseExceptionHandler();
 
 app.MapDefaultEndpoints();
 
-app.NewVersionedApi("Detection").MapDetectionApiV1(); 
+app.NewVersionedApi("Detection").MapDetectionApiV1();
 
 app.Run();

@@ -9,7 +9,7 @@ namespace MachineLearningDemo.Detection.Chat.Services.WorkFlows;
 
 internal interface IObjectDetectionWorkflow
 {
-    Task<ImageDetectionResult> Detect(ChatClientWrapper chatClientWrapper, string fileName, ReadOnlyMemory<byte> image, string contentType);
+    Task<ImageDetectionResult?> Detect(ChatClientWrapper chatClientWrapper, string fileName, ReadOnlyMemory<byte> image, string contentType);
 }
 
 internal class ObjectDetectionWorkflow(
@@ -18,7 +18,7 @@ internal class ObjectDetectionWorkflow(
     IAddImageDetectionResultCommand addImageDetectionResultCommand)
     : IObjectDetectionWorkflow
 {
-    public async Task<ImageDetectionResult> Detect(ChatClientWrapper chatClientWrapper, string fileName, ReadOnlyMemory<byte> image, string contentType)
+    public async Task<ImageDetectionResult?> Detect(ChatClientWrapper chatClientWrapper, string fileName, ReadOnlyMemory<byte> image, string contentType)
     {
         var detectionStarted = new DetectionStartedEvent
         {

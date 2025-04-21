@@ -4,15 +4,15 @@ using MachineLearningDemo.Detection.Chat.Services.WorkFlows;
 
 namespace MachineLearningDemo.Detection.Chat.Services;
 
-internal interface IImageObjectDetectionService
+internal interface IChatImageObjectDetectionService
 {
     Task<ImageDetectionResult[]> Detect(string fileName, ReadOnlyMemory<byte> image, string contentType);
 }
 
-internal class ImageObjectDetectionService(
+internal class ChatImageObjectDetectionService(
     IEnumerable<ChatClientWrapper> clients,
     IObjectDetectionWorkflow objectDetectionWorkflow) 
-    : IImageObjectDetectionService
+    : IChatImageObjectDetectionService
 {
     public async Task<ImageDetectionResult[]> Detect(string fileName, ReadOnlyMemory<byte> image, string contentType)
     {

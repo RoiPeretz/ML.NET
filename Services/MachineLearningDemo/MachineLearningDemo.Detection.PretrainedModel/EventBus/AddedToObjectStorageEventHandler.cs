@@ -1,12 +1,12 @@
 ﻿using MachineLearningDemo.Core.EventBus.Abstractions;
 using MachineLearningDemo.Core.EventBus.Events;
 using MachineLearningDemo.Core.ObjectStorage.Interfaces;
-using MachineLearningDemo.Detection.Chat.Services;
+using MachineLearningDemo.Detection.PretrainedModel.Services;
 
-namespace MachineLearningDemo.Detection.Chat.EventBus;
+namespace MachineLearningDemo.Detection.PretrainedModel.EventBus;
 
 internal class AddedToObjectStorageEventHandler(
-    IChatImageObjectDetectionService service,
+    IModelImageObjectDetectionService service,
     ILogger<AddedToObjectStorageEventHandler> logger,
     IAssetsObjectStorageClient assetsObjectStorageClient)
     : IIntegrationEventHandler<AddedToObjectStorageEvent>

@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MachineLearningDemo.BFF.Clients.DetectionChat;
+using MachineLearningDemo.BFF.Clients.DetectionPretrainedModel;
 using MachineLearningDemo.BFF.Clients.ImageRepository;
 using MachineLearningDemo.BFF.EventBus;
 using MachineLearningDemo.BFF.Hubs;
@@ -27,6 +28,9 @@ builder.Services.AddHttpClient<IImageRepositoryClientGen, ImageRepositoryClientG
 
 builder.Services.AddHttpClient<IDetectionChatClientGen, DetectionChatClientGen>(
     static client => client.BaseAddress = new Uri("https+http://DetectionChat"));
+
+builder.Services.AddHttpClient<IDetectionPretrainedModelClientGen, DetectionPretrainedModelClientGen>(
+    static client => client.BaseAddress = new Uri("https+http://DetectionPretrainedModel"));
 
 builder.Services.AddSignalR(o =>
 {

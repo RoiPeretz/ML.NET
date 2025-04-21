@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using Elastic.Clients.Elasticsearch;
+﻿using Elastic.Clients.Elasticsearch;
 using MachineLearningDemo.Core.Models;
 using MachineLearningDemo.Core.Persistence.Commands;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,7 @@ class AddImageDetectionResultCommand(
     ILogger<AddImageDetectionResultCommand> logger) 
     : IAddImageDetectionResultCommand
 {
-    public async Task<bool> Add(ImageDetectionResult imageDetectionResult)
+    public async Task<bool> Add(ImageDetectionResult? imageDetectionResult)
     {
         var response = await elasticClient.CreateAsync(
             imageDetectionResult,

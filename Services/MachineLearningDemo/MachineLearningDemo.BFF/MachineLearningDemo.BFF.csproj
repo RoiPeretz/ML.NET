@@ -21,6 +21,11 @@
 			<OutputPath>obj\DetectionChatClientGen.cs</OutputPath>
 			<Namespace>MachineLearningDemo.BFF.Clients.DetectionChat</Namespace>
 		</OpenApiReference>
+		<OpenApiReference Include="Clients\DetectionPretrainedModel\openApi.json" ClassName="DetectionPretrainedModelClientGen">
+			<Options>/UseBaseUrl:false /GenerateClientInterfaces:true  /GenerateExceptionClasses:true</Options>
+			<OutputPath>obj\DetectionPretrainedModelClientGen.cs</OutputPath>
+			<Namespace>MachineLearningDemo.BFF.Clients.DetectionPretrainedModel</Namespace>
+		</OpenApiReference>
 	</ItemGroup>
 
 
@@ -40,8 +45,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\MachineLearningDemo.Core\MachineLearningDemo.Core.csproj" />
 		<ProjectReference Include="..\MachineLearningDemo.Infrastructure\MachineLearningDemo.Infrastructure.csproj" />
 		<ProjectReference Include="..\MachineLearningDemo.ServiceDefaults\MachineLearningDemo.ServiceDefaults.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Clients\DetectionPretrainedModel\" />
 	</ItemGroup>
 
 </Project>

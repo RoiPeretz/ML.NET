@@ -1,8 +1,8 @@
-﻿using MachineLearningDemo.BFF.Clients.DetectionChat;
-using MachineLearningDemo.BFF.Clients.ImageRepository;
+﻿using MachineLearningDemo.BFF.Clients.ImageRepository;
 using MachineLearningDemo.BFF.Services;
 using MachineLearningDemo.Core.EventBus.Abstractions;
 using MachineLearningDemo.Core.EventBus.Events;
+using MachineLearningDemo.Core.Models;
 using Microsoft.AspNetCore.SignalR;
 using FileParameter = MachineLearningDemo.BFF.Clients.ImageRepository.FileParameter;
 

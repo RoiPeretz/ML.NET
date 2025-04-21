@@ -1,10 +1,10 @@
 ﻿using MachineLearningDemo.Core.Models;
 using MachineLearningDemo.Core.Persistence.Queries;
-using MachineLearningDemo.Detection.Chat.Services;
+using MachineLearningDemo.Detection.PretrainedModel.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MachineLearningDemo.Detection.Chat.Apis;
+namespace MachineLearningDemo.Detection.PretrainedModel.Apis;
 
 public static class DetectionApi
 {
@@ -18,9 +18,9 @@ public static class DetectionApi
         return api;
     }
     
-    internal static async Task<Results<Ok<ImageDetectionResult[]>, BadRequest<string>, ProblemHttpResult>> ImageObjectDetectionAsync(
+    internal static async Task<Results<Ok<ImageDetectionResult>, BadRequest<string>, ProblemHttpResult>> ImageObjectDetectionAsync(
         IFormFile file,
-        [FromServices] IChatImageObjectDetectionService service)
+        [FromServices] IModelImageObjectDetectionService service)
     {
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
