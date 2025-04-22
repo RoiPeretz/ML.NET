@@ -40,11 +40,6 @@ public static class DetectionApi
         var result = await queryDetectionResultBySearchTerm.Query(searchTerm);
         var imageDetectionResults = result as ImageDetectionResult[] ?? result.ToArray();
         
-        if (imageDetectionResults.Any() is false)
-        {
-            return TypedResults.Problem(detail: "No detection results found.", statusCode: 404);
-        }
-
         return TypedResults.Ok(imageDetectionResults.ToArray());
     }
 

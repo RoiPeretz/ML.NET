@@ -168,6 +168,7 @@ public sealed class RabbitMqEventBus(
             catch (Exception ex)
             {
                 activity.SetExceptionTags(ex);
+                logger.LogError(ex, "Error publishing event to RabbitMQ: {EventId}", @event.Id);
 
                 throw;
             }
