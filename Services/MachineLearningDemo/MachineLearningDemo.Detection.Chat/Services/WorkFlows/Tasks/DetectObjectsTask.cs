@@ -16,12 +16,9 @@ internal class DetectObjectsTask : IDetectObjectsTask
             $"""
              You are an advanced image-analysis system. Given the attached image, please identify and describe all the objects you can detect. For each detected object, provide:
              
-             A label or name (e.g., 'bicycle', 'dog', 'chair').
+             A label or name (e.g., 'bicycle', 'dog', 'chair').The color of the object (e.g., 'blue', 'yellow', 'gray').
              
-             A confidence score or how certain you are.
-             
-             Additional information such as the color, shape, or other distinguishing features.
-             
+             Additional information such as the shape, or other distinguishing features.
              Any relationships or context (e.g., if the object is on top of another object).
              If text is visible, transcribe it if legible. 
              If the image is ambiguous or if you are uncertain about any detail, please note that uncertainty.
